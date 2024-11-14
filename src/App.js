@@ -13,22 +13,19 @@ function App() {
   console.log(messageList);
 
   useEffect(() => {
-    
-
     socket.on("rooms", (res) => {
       setRooms(res);
-    })
+    });
 
-    // 소켓에서 'message' 이벤트를 수신할 때마다 콘솔에 출력
     socket.on("message", (message) => {
       setMessageList((prevState) => prevState.concat(message));
     });
 
-    // 사용자 이름을 묻는 함수 호출
     askUsername();
 
-    // 컴포넌트가 언마운트될 때 이벤트 정리
+    // 정리 단계에서 모든 소켓 리스너 제거
     return () => {
+      socket.off("rooms");
       socket.off("message");
     };
   }, []);
@@ -39,7 +36,7 @@ function App() {
 
     socket.emit("login", userName, (res) => {
       if (res?.ok) {
-        setUser(res.data); // 서버에서 받은 데이터를 user 상태로 설정
+        setUser(res.data);
       }
     });
   };
