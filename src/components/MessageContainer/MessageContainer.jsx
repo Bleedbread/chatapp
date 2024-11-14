@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import "./MessageContainer.css";
 import { Container } from "@mui/system";
 
@@ -6,8 +5,15 @@ const MessageContainer = ({ messageList, user }) => {
   return (
     <div>
       {messageList.map((message, index) => {
+        const isVisible =
+          index === 0 ||
+          messageList[index - 1].user.name === user.name ||
+          messageList[index - 1].user.name === "system";
         return (
-          <Container key={message._id} className="message-container">
+          <Container
+            key={message._id || index} // message._id가 없으면 index를 key로 사용
+            className="message-container"
+          >
             {message.user.name === "system" ? (
               <div className="system-message-container">
                 <p className="system-message">{message.chat}</p>
@@ -20,16 +26,11 @@ const MessageContainer = ({ messageList, user }) => {
               <div className="your-message-container">
                 <img
                   src="/profile.jpeg"
+                  alt="" // 빈 문자열로 설정하여 장식용 이미지로 처리
                   className="profile-image"
-                  style={
-                    (index === 0
-                      ? { visibility: "visible" }
-                      : messageList[index - 1].user.name === user.name) ||
-                    messageList[index - 1].user.name === "system"
-                      ? { visibility: "visible" }
-                      : { visibility: "hidden" }
-                  }
+                  style={{ visibility: isVisible ? "visible" : "hidden" }}
                 />
+
                 <div className="your-message">{message.chat}</div>
               </div>
             )}
