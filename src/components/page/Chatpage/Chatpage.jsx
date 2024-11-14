@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {useParams,useNavigate} from "react-router-dom"
 import socket from "../../../server";
-//import { Button } from "@mui/base/Button"
+import { Button } from "@mui/base/Button"
 import MessageContainer from "../../../components/MessageContainer/MessageContainer";
 import InputField from "../../../components/InputField/InputField";
 import './chatPageStyle.css'
@@ -53,7 +53,7 @@ const ChatPage = ({user}) => {
         <div className="App">
           <div>
           <nav>
-              <button onClick={leaveRoom}className='back-button'>←</button>
+              <Button onClick={leaveRoom}className='back-button'>←</Button>
               <div className='nav-user'>{user.name}</div>
             </nav>
             {messageList.length > 0 ? (
