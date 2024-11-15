@@ -10,8 +10,6 @@ function App() {
   const [messageList, setMessageList] = useState([]);
   const [rooms, setRooms] = useState([])
 
-  console.log(messageList);
-
   useEffect(() => {
     socket.on("rooms", (res) => {
       setRooms(res);

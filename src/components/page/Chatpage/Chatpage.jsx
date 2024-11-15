@@ -12,7 +12,7 @@ import './chatPageStyle.css'
 const ChatPage = ({user}) => {
     const [messageList, setMessageList] = useState([]);
     const [message, setMessage] = useState("");
-    const {id} = useParams() // 유저가 조인한 방의 아이디를 url에서 가져온다.
+    const {id} = useParams() // URL에서 방 ID 가져오기
     const navigate = useNavigate()
     const [checkJoinedRoom, setCheckJoinedRoom] = useState(false)
     
@@ -29,13 +29,14 @@ const ChatPage = ({user}) => {
           }
         })
       }
-    })
+    },[checkJoinedRoom,id])
 
     const leaveRoom = () => {
       console.log("Leave room button clicked"); // 함수 호출 확인
-      socket.emit("leaveRoom", user, (res) => {
+      socket.emit("leaveRoom", id, (res) => {
         if (res.ok) {
           console.log("Successfully left the room"); // 서버 응답 확인
+          setMessageList([]);
           navigate("/"); // 다시 채팅방 리스트 페이지로 돌아감
         } else {
           console.error("Failed to leave the room", res.error);
@@ -44,10 +45,16 @@ const ChatPage = ({user}) => {
     };
 
     useEffect(() => {
-      socket.on("message", (res) => {
-        console.log("message",res)
+      const handleMessage = (res) =>
+      {
+        console.log("message", res);
         setMessageList((prevState) => prevState.concat(res));
-      });
+      }
+      socket.on("message",handleMessage);
+      return () =>
+      {
+        socket.off("message", handleMessage);
+      }
 
     }, []);
   
