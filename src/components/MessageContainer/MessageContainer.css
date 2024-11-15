@@ -1,48 +1,61 @@
+/* 공통 메시지 스타일 */
+.message-container {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.message-item {
+  margin-bottom: 5px;
+}
+
+.message {
+  border-radius: 8px;
+  padding: 8px;
+  max-width: 200px;
+  font-size: 12px;
+}
+
+/* 시스템 메시지 */
 .system-message-container {
   display: flex;
-
   justify-content: center;
   align-items: center;
 }
 
 .system-message {
   background-color: #55667758;
-  border-radius: 100px;
-  text-align: center;
   color: white;
   padding: 2px 15px;
   font-size: 14px;
+  text-align: center;
 }
+
+/* 내 메시지 */
 .my-message-container {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 5px;
-}
-.my-message {
-  background-color: #f7e600;
-  border-radius: 8px;
-  padding: 8px;
-  max-width: 200px;
-  font-size: 12px;
 }
 
+.my-message {
+  background-color: #f7e600;
+}
+
+/* 상대방 메시지 */
 .your-message-container {
   display: flex;
   justify-content: flex-start;
-  /* margin-bottom: 5px; */
   align-items: center;
 }
+
 .your-message {
   background-color: white;
-  border-radius: 8px;
-  padding: 8px;
-  max-width: 200px;
-  font-size: 12px;
 }
 
+/* 프로필 이미지 */
 .profile-image {
   width: 38px;
   height: 38px;
-  border-radius: 100px;
+  border-radius: 50%;
   margin-right: 10px;
 }

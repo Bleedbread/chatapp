@@ -1,93 +1,110 @@
-import React, { useEffect, useState } from 'react'
-import {useParams,useNavigate} from "react-router-dom"
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import socket from "../../../server";
-import { Button } from "@mui/base/Button"
 import MessageContainer from "../../../components/MessageContainer/MessageContainer";
 import InputField from "../../../components/InputField/InputField";
-import './chatPageStyle.css'
+import "./chatPageStyle.css";
 
+const ChatPage = ({ user }) => {
+  const { id } = useParams(); // 방 ID
+  const navigate = useNavigate();
 
-  
+  const [messageList, setMessageList] = useState([]);
+  const [message, setMessage] = useState("");
+  const [page, setPage] = useState(1);
+  const [isFetching, setIsFetching] = useState(false);
+  const [checkJoinedRoom, setCheckJoinedRoom] = useState(false);
 
-const ChatPage = ({user}) => {
-    const [messageList, setMessageList] = useState([]);
-    const [message, setMessage] = useState("");
-    const {id} = useParams() // URL에서 방 ID 가져오기
-    const navigate = useNavigate()
-    const [checkJoinedRoom, setCheckJoinedRoom] = useState(false)
-    
-    useEffect(()=> {
-      if(!checkJoinedRoom)
-      {
-        socket.emit("joinRoom",id,(res)=>{
-          if(res.ok){
-              console.log("successfully join",res);
-              setCheckJoinedRoom(true);
-          }
-          else{
-              console.log("fail to join",res);
-          }
-        })
+  // 메시지 로드 함수
+  const fetchMessages = async () => {
+    if (isFetching) return;
+    setIsFetching(true);
+
+    try {
+      const response = await fetch(`/api/rooms/${id}/messages?page=${page}`);
+      const data = await response.json();
+      if (data.ok) {
+        setMessageList((prev) => [...data.messages, ...prev]);
+        setPage((prev) => prev + 1);
       }
-    },[checkJoinedRoom,id])
+    } catch (error) {
+      console.error("Failed to fetch messages", error);
+    }
 
-    const leaveRoom = () => {
-      console.log("Leave room button clicked"); // 함수 호출 확인
-      socket.emit("leaveRoom", id, (res) => {
-        if (res.ok) {
-          console.log("Successfully left the room"); // 서버 응답 확인
-          setMessageList([]);
-          navigate("/"); // 다시 채팅방 리스트 페이지로 돌아감
-        } else {
-          console.error("Failed to leave the room", res.error);
-        }
-      });
+    setIsFetching(false);
+  };
+
+  // 채팅방 조인
+  useEffect(() => {
+    if (checkJoinedRoom) return;
+
+    socket.emit("joinRoom", id, (res) => {
+      if (res.ok) {
+        setCheckJoinedRoom(true);
+      } else {
+        console.error("Failed to join room", res.error);
+      }
+    });
+  }, [checkJoinedRoom, id]);
+
+  // 스크롤 이벤트로 메시지 로드
+  useEffect(() => {
+    const container = document.querySelector(".message-container");
+    const handleScroll = () => {
+      if (container.scrollTop === 0 && !isFetching) fetchMessages();
     };
 
-    useEffect(() => {
-      const handleMessage = (res) =>
-      {
-        console.log("message", res);
-        setMessageList((prevState) => prevState.concat(res));
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [isFetching]);
+
+  // 새 메시지 수신 처리
+  useEffect(() => {
+    const handleMessage = (res) => setMessageList((prev) => [...prev, res]);
+
+    socket.on("message", handleMessage);
+    return () => socket.off("message", handleMessage);
+  }, []);
+
+  // 메시지 보내기
+  const sendMessage = (event) => {
+    event.preventDefault();
+    if (!message.trim()) return;
+
+    socket.emit("sendMessage", message, (res) => {
+      if (!res.ok) console.error("Failed to send message", res.error);
+      setMessage("");
+    });
+  };
+
+  // 방 나가기
+  const leaveRoom = () => {
+    socket.emit("leaveRoom", id, (res) => {
+      if (res.ok) {
+        setMessageList([]);
+        navigate("/");
+      } else {
+        console.error("Failed to leave room", res.error);
       }
-      socket.on("message",handleMessage);
-      return () =>
-      {
-        socket.off("message", handleMessage);
-      }
+    });
+  };
 
-    }, []);
-  
-    const sendMessage = (event) => {
-      event.preventDefault();
-      socket.emit("sendMessage", message, (res) => {
-        if (!res.ok) {
-          console.log("error message", res.error);
-        }
-        setMessage("");
-      });
-    };
+  return (
+    <div className="App">
+      <nav>
+        <button onClick={leaveRoom} className="back-button">
+          ←
+        </button>
+        <div className="nav-user">{user.name}</div>
+      </nav>
+      <MessageContainer messageList={messageList} user={user} />
+      <InputField
+        message={message}
+        setMessage={setMessage}
+        sendMessage={sendMessage}
+      />
+    </div>
+  );
+};
 
-    return (
-      <div>
-        <div className="App">
-            <nav>
-              <Button onClick={leaveRoom}className='back-button'>←</Button>
-              <div className='nav-user'>{user.name}</div>
-            </nav>
-          <div>
-            {messageList.length > 0 ? (
-              <MessageContainer messageList={messageList} user={user} />
-            ) : null}
-          </div>
-          <InputField
-            message={message}
-            setMessage={setMessage}
-            sendMessage={sendMessage}
-          />
-        </div>
-      </div>
-    );
-}
-
-export default ChatPage
+export default ChatPage;
