@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import socket from "../../../server";
 import MessageContainer from "../../../components/MessageContainer/MessageContainer";
@@ -16,7 +16,7 @@ const ChatPage = ({ user }) => {
   const [checkJoinedRoom, setCheckJoinedRoom] = useState(false);
 
   // 메시지 로드 함수
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     if (isFetching) return;
     setIsFetching(true);
 
@@ -32,7 +32,7 @@ const ChatPage = ({ user }) => {
     }
 
     setIsFetching(false);
-  };
+  }, [id, page, isFetching]);
 
   // 채팅방 조인
   useEffect(() => {
@@ -56,7 +56,7 @@ const ChatPage = ({ user }) => {
 
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
-  }, [isFetching]);
+  }, [fetchMessages, isFetching]);
 
   // 새 메시지 수신 처리
   useEffect(() => {

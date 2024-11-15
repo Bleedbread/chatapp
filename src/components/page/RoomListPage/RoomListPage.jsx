@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from "react";
-import socket from "../../../server";
 import { useNavigate } from "react-router-dom";
 import "./RoomListPageStyle.css";
 
-const RoomListPage = ({rooms}) => {
+const RoomListPage = ({rooms=[]}) => {
   
   const navigate = useNavigate();
 
