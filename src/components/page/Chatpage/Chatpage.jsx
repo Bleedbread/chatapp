@@ -13,54 +13,67 @@ const ChatPage = ({ user }) => {
   const [message, setMessage] = useState("");
   const [page, setPage] = useState(1);
   const [isFetching, setIsFetching] = useState(false);
-  const [checkJoinedRoom, setCheckJoinedRoom] = useState(false);
+  const [hasMore, setHasMore] = useState(true); // 더 이상 메시지가 없을 경우
 
   // 메시지 로드 함수
   const fetchMessages = useCallback(async () => {
-    if (isFetching) return;
+    if (isFetching || !hasMore) return; // 중복 호출 방지 및 hasMore 체크
     setIsFetching(true);
 
     try {
       const response = await fetch(`/api/rooms/${id}/messages?page=${page}`);
       const data = await response.json();
       if (data.ok) {
-        setMessageList((prev) => [...data.messages, ...prev]);
-        setPage((prev) => prev + 1);
+        if (data.messages.length === 0) {
+          setHasMore(false); // 더 이상 메시지가 없으면 중단
+        } else {
+          setMessageList((prev) => [...data.messages, ...prev]); // 기존 메시지 위에 추가
+          setPage((prev) => prev + 1);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch messages", error);
+    } finally {
+      setIsFetching(false);
     }
-
-    setIsFetching(false);
-  }, [id, page, isFetching]);
+  }, [id, page, isFetching, hasMore]);
 
   // 채팅방 조인
   useEffect(() => {
-    if (checkJoinedRoom) return;
-
     socket.emit("joinRoom", id, (res) => {
       if (res.ok) {
-        setCheckJoinedRoom(true);
+        console.log("Joined room successfully");
       } else {
         console.error("Failed to join room", res.error);
       }
     });
-  }, [checkJoinedRoom, id]);
+
+    return () => {
+      socket.emit("leaveRoom", id);
+    };
+  }, [id]);
 
   // 스크롤 이벤트로 메시지 로드
   useEffect(() => {
     const container = document.querySelector(".message-container");
     const handleScroll = () => {
-      if (container.scrollTop === 0 && !isFetching) fetchMessages();
+      if (container.scrollTop === 0 && hasMore && !isFetching) {
+        const prevScrollHeight = container.scrollHeight;
+        fetchMessages().then(() => {
+          container.scrollTop = container.scrollHeight - prevScrollHeight; // 스크롤 유지
+        });
+      }
     };
 
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
-  }, [fetchMessages, isFetching]);
+  }, [fetchMessages, isFetching, hasMore]);
 
   // 새 메시지 수신 처리
   useEffect(() => {
-    const handleMessage = (res) => setMessageList((prev) => [...prev, res]);
+    const handleMessage = (res) => {
+      setMessageList((prev) => [...prev, res]); // 새 메시지는 맨 아래에 추가
+    };
 
     socket.on("message", handleMessage);
     return () => socket.off("message", handleMessage);
@@ -72,8 +85,11 @@ const ChatPage = ({ user }) => {
     if (!message.trim()) return;
 
     socket.emit("sendMessage", message, (res) => {
-      if (!res.ok) console.error("Failed to send message", res.error);
-      setMessage("");
+      if (res.ok) {
+        setMessage(""); // 입력 필드 초기화
+      } else {
+        console.error("Failed to send message", res.error);
+      }
     });
   };
 
@@ -81,7 +97,6 @@ const ChatPage = ({ user }) => {
   const leaveRoom = () => {
     socket.emit("leaveRoom", id, (res) => {
       if (res.ok) {
-        setMessageList([]);
         navigate("/");
       } else {
         console.error("Failed to leave room", res.error);
@@ -97,7 +112,7 @@ const ChatPage = ({ user }) => {
         </button>
         <div className="nav-user">{user.name}</div>
       </nav>
-      <MessageContainer messageList={messageList} user={user} />
+      <MessageContainer messageList={messageList} user={user} fetchMessages={fetchMessages} />
       <InputField
         message={message}
         setMessage={setMessage}
