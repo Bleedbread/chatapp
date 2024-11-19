@@ -39,14 +39,18 @@ const ChatPage = ({ user }) => {
   }, [id, page, isFetching, hasMore]);
 
   // 채팅방 조인
-  useEffect(() => {
-    socket.emit("joinRoom", id, (res) => {
+  const joinRoom = (rid) => {
+    socket.emit("joinRoom", rid, (res) => {
       if (res.ok) {
         console.log("Joined room successfully");
       } else {
         console.error("Failed to join room", res.error);
       }
     });
+  };
+
+  useEffect(() => {
+    joinRoom(id);
 
     return () => {
       socket.emit("leaveRoom", id);

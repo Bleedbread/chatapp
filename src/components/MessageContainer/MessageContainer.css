@@ -1,31 +1,29 @@
 .message-container {
-  height: 400px; /* 고정된 높이 */
-  overflow-y: auto; /* 세로 스크롤 가능 */
+  height: 400px;
+  overflow-y: auto;
   display: flex;
-  flex-direction: column-reverse; /* 최신 메시지가 아래로 정렬 */
+  flex-direction: column;
   padding: 10px;
-  background-color: #f0f4f8;
+  background-color: #e0f7fa; /* 연한 하늘색 배경 */
 }
 
 .message-item {
-  margin-bottom: 10px; /* 메시지 간격 */
-  max-width: 60%; /* 메시지 박스 최대 너비 */
-  word-wrap: break-word; /* 긴 텍스트 줄바꿈 */
+  margin-bottom: 10px;
+  max-width: 60%;
+  word-wrap: break-word;
 }
 
-.my-message {
-  background-color: #f7e600;
-  border-radius: 10px;
+.my-message {  border-radius: 10px;
   padding: 10px;
-  margin-left: auto; /* 오른쪽 정렬 */
+  margin-left: auto;
   text-align: left;
 }
 
 .your-message {
-  background-color: white;
+
   border-radius: 10px;
   padding: 10px;
-  margin-right: auto; /* 왼쪽 정렬 */
+  margin-right: auto;
   text-align: left;
   display: flex;
   align-items: center;

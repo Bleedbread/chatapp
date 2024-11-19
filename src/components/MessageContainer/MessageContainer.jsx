@@ -36,7 +36,9 @@ const MessageContainer = ({ messageList, user, fetchMessages }) => {
             {isSystem ? (
               <div className="system-message">{message.chat}</div>
             ) : isMyMessage ? (
-              <div className="my-message">{message.chat}</div>
+              <div className="my-message">
+                <strong>{user.name}:</strong> {message.chat}
+              </div>
             ) : (
               <div className="your-message">
                 <img
@@ -44,7 +46,7 @@ const MessageContainer = ({ messageList, user, fetchMessages }) => {
                   alt="profile"
                   className="profile-image"
                 />
-                {message.chat}
+                <strong>{message.user.name}:</strong> {message.chat}
               </div>
             )}
           </div>

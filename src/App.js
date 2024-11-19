@@ -4,6 +4,9 @@ import socket from "./server";
 import { Routes, Route } from "react-router-dom";
 import RoomListPage from "./components/page/RoomListPage/RoomListPage.jsx";
 import ChatPage from "./components/page/Chatpage/Chatpage.jsx";
+import Playlist from "./components/Playlist/Playlist.jsx";
+
+
 
 function App() {
   const [user, setUser] = useState(null);
@@ -45,6 +48,7 @@ function App() {
       <Routes>
         <Route exact path="/" element={<RoomListPage rooms={rooms} />} />
         <Route exact path="/room/:id" element={<ChatPage user={user} />} />
+        <Route exact path="/playlist" element={<Playlist />} />
       </Routes>
   );
 }

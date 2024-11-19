@@ -1,18 +1,26 @@
 .App {
-    height:100vh;
-    background-image: url("../../../../public/background.png");
+    height: 100vh;
+    background-color: #e0f7fa; /* 연한 하늘색 배경 */
     margin-left: auto;
     margin-right: auto;
     max-width: 28rem;
     position: relative;
-  }
+    font-family: 'Dotum', sans-serif; /* 레트로한 폰트 */
+    color: #333;
+    border: 2px solid #b2ebf2; /* 테두리 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-nav{
+nav {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    background-color: #ffffff; /* 흰색 배경 */
+    padding: 10px;
+    border-bottom: 2px solid #b2ebf2; /* 테두리 */
 }
-.back-button{
+
+.back-button {
     height: 50px;
     width: 50px;
     background: none;
@@ -21,8 +29,28 @@ nav{
     font-weight: bolder;
     cursor: pointer;
     margin-right: 10px;
+    color: #00796b; /* 진한 청록색 */
+    transition: transform 0.2s;
 }
-.nav-user{
+
+.back-button:hover {
+    transform: scale(1.1);
+}
+
+.nav-user {
     font-size: 20px;
     font-weight: 500;
+    color: #00796b; /* 진한 청록색 */
+}
+
+.message-item {
+    margin-bottom: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #ffffff;
+}
+
+.message-item strong {
+    color: #00796b; /* 진한 청록색 */
+    margin-right: 5px;
 }
